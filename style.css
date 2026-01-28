@@ -17,7 +17,7 @@ body {
 }
 
 #video {
-  width: 200px;
+  width: 50px;
   height: auto;
   border-radius: 12px;
   object-fit: cover;
