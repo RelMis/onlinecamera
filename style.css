@@ -11,8 +11,7 @@ h1 {
   border-radius: 50%;
 }
 
-#canvas {
-  display: flex;
-  align-items: center;
-  height: 60px;
+img {
+  width: 150px;
+  height: auto;
 }
