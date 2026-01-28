@@ -7,14 +7,21 @@ h1 {
 }
 
 #snapBtn {
-  padding: 100px 100px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  border-radius: 10px;
+  border: 2px solid #ddd;
+  background-color: white;
+  cursor: pointer;
   display: flex;
+  justify-content: center;
   align-items: center;
-}
-
+  font-size: 24px;
+  transition: transform 0.2s;
+  
 #video {
-  width: 1000px;
+  width: 300px;
   height: auto;
+  border-radius: 12px;
+  object-fit: cover;
 }
