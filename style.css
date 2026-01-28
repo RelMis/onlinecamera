@@ -3,6 +3,9 @@
   height: auto;
   border-radius: 12px;
   object-fit: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #snapBtn {
@@ -16,9 +19,4 @@
   justify-content: center;
   align-items: center;
   font-size: 24px;
-  transition: transform 0.2s;
-}
-
-#snapBtn:hover {
-  transform: scale(1.1);
 }
