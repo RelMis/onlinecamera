@@ -1,14 +1,3 @@
-#cameraContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  height: 100vh;
-  gap: 20px;
-  padding-bottom: 40px;
-  background-color: lightblue;
-}
-
 #video {
   width: 300px;
   height: auto;
